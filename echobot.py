@@ -2,6 +2,7 @@ import os
 import json
 from dotenv import load_dotenv
 import requests
+import time
 
 # load .env
 load_dotenv()
@@ -27,10 +28,33 @@ def get_json(url: str) -> dict:
     return js
 
 
-def get_update() -> dict:
+def get_updates(offset: int = None) -> dict:
     url = URL + "getUpdates"
+    if offset:
+        url += f"?offset={offset}"
     js = get_json(url)
     return js
+
+
+def get_last_update_id(updates: dict) -> int:
+    result = updates.get('result', [])
+    update_ids = [int(item.get('update_id', 0)) for item in result if isinstance(
+        item.get('update_id'), (int, list))]
+    return max(update_ids) if update_ids else 0
+
+
+print(get_last_update_id(get_updates()))
+
+
+def echo_all(updates: dict) -> None:
+    for update in updates.get('result', []):
+        try:
+            message = update.get('message', {})
+            text = message.get('text')
+            chat_id = message.get('chat', {}).get('id', 0)
+            send_message(text, chat_id)
+        except Exception as e:
+            print(f"echo_all: {e}")
 
 
 def get_last_chat(updates: dict) -> tuple:
@@ -48,6 +72,17 @@ def send_message(text: str, chat_id: str) -> None:
     get_url(url)
 
 
-text, chat = get_last_chat(get_update())
-print(chat, text)
-send_message(text, chat)
+def echo_message():
+    last_update_id = None
+
+    while True:
+        updates = get_updates(last_update_id)
+
+        if len(updates.get('result', 0)) > 0:
+            last_update_id = get_last_update_id(updates) + 1
+            echo_all(updates)
+        time.sleep(0.5)
+
+
+if __name__ == '__main__':
+    echo_message()

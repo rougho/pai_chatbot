@@ -1,8 +1,13 @@
+import urllib
 import os
 import json
 from dotenv import load_dotenv
 import requests
 import time
+from langchain_community.llms import Ollama
+
+llm = Ollama(model="llama2")
+
 
 # load .env
 load_dotenv()
@@ -29,9 +34,9 @@ def get_json(url: str) -> dict:
 
 
 def get_updates(offset: int = None) -> dict:
-    url = URL + "getUpdates"
+    url = URL + "getUpdates?timeout=100"
     if offset:
-        url += f"?offset={offset}"
+        url += f"&offset={offset}"
     js = get_json(url)
     return js
 
@@ -43,18 +48,21 @@ def get_last_update_id(updates: dict) -> int:
     return max(update_ids) if update_ids else 0
 
 
-print(get_last_update_id(get_updates()))
+# print(get_last_update_id(get_updates()))
 
 
-def echo_all(updates: dict) -> None:
+def response_msg(updates: dict) -> None:
     for update in updates.get('result', []):
         try:
             message = update.get('message', {})
             text = message.get('text')
+            print(f"User: {text}")
+            text = llm.invoke(str(text))
+            print(f"Bot: {text}")
             chat_id = message.get('chat', {}).get('id', 0)
             send_message(text, chat_id)
         except Exception as e:
-            print(f"echo_all: {e}")
+            print(f"response: {e}")
 
 
 def get_last_chat(updates: dict) -> tuple:
@@ -68,11 +76,12 @@ def get_last_chat(updates: dict) -> tuple:
 
 
 def send_message(text: str, chat_id: str) -> None:
-    url = URL + f"sendMessage?text={text}&chat_id={chat_id}"
+    text = urllib.parse.quote_plus(text)
+    url = URL + f"sendMessage?chat_id={chat_id}&text={text}"
     get_url(url)
 
 
-def echo_message():
+def main():
     last_update_id = None
 
     while True:
@@ -80,9 +89,11 @@ def echo_message():
 
         if len(updates.get('result', 0)) > 0:
             last_update_id = get_last_update_id(updates) + 1
-            echo_all(updates)
+            response_msg(updates)
+            llm.invoke("how can langsmith help with testing?")
+
         time.sleep(0.5)
 
 
 if __name__ == '__main__':
-    echo_message()
+    main()

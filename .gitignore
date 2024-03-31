@@ -1,6 +1,6 @@
 #custom
 echobot.py
-
+telegram_request.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

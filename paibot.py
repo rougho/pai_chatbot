@@ -32,13 +32,13 @@ def write_json(data: dict) -> None:
 
 def send_message(chat_id: int, text: str = "...") -> bool:
     url = BASE_URL + 'sendMessage'
-    msg = {
+    payload = {
         'chat_id': chat_id,
         'text': text
     }
     try:
-        post_request = requests.post(url, json=msg)
-        post_request.raise_for_status()
+        respond = requests.post(url, json=payload)
+        respond.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Error sending message: {e}")
         return False
@@ -52,13 +52,18 @@ def bot():
         chat_id, text = parse_message(message)
         write_json(message)
         msg = llm.invoke(text)
-        send_message(chat_id, msg)
+        send_message(chat_id, text)
         return Response('OK', status=200)
     else:
         return Response('Internal Server Error', status=500)
 
 
-requests.get(telegram_webhook)
+@app.route('/setwebhook/')
+def setwebhook():
+    return "OK" if requests.get(telegram_webhook) else "FAIL"
+
+# requests.get(telegram_webhook)
+
 
 if __name__ == '__name__':
     app.run(debug=True)

@@ -1,0 +1,1 @@
+[{"command": "forecast5", "description": "weather forcasting 5 days"}, {"command": "forecast10", "description": "weather forcasting 10 days"}]

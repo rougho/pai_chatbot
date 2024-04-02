@@ -13,7 +13,7 @@ load_dotenv()
 TOKEN: str = os.getenv('HTTP_API_TOKEN')
 BASE_URL: str = f"https://api.telegram.org/bot{TOKEN}/"
 ngrok_url: str = os.getenv("NGROK_URL")
-telegram_webhook: str = BASE_URL + "setWebhook?" + "url=" + ngrok_url
+telegram_webhook: str = BASE_URL + "setWebhook"
 app: object = Flask(__name__)
 
 
@@ -43,14 +43,8 @@ def send_message(chat_id: int, text: str = "...") -> bool:
         'chat_id': chat_id,
         'text': text
     }
-    headers = {
-        "accept": "application/json",
-        "User-Agent": "Telegram Bot",
-        "content-type": "application/json"
-    }
-
     try:
-        respond = requests.post(url, json=payload, headers=headers)
+        respond = requests.post(url, json=payload)
         respond.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Error sending message: {e}")
@@ -71,24 +65,13 @@ def bot():
         return Response('Internal Server Error', status=500)
 
 
-# @app.route('/setwebhook/')
-# def setwebhook():
-#     url = f"https://api.telegram.org/{TOKEN}/setWebhook?url={ngrok_url}"
-
-#     payload = {
-#         "url": "ngrok_url",
-#         "certificate": "Optional"
-#     }
-#     headers = {
-#         "accept": "application/json",
-#         "content-type": "application/json"
-#     }
-
-#     response = requests.post(url, json=payload, headers=headers)
-
-#     return (response.text, url)
-    # return "OK" if requests.get(telegram_webhook) else "FAIL"
+@app.route('/setwebhook/')
+def setwebhook():
+    print(telegram_webhook)
+    set_ngrok = {"url": ngrok_url}
+    response = requests.post(telegram_webhook, json=set_ngrok)
+    return response.json() if response.status_code == 200 else "FAIL"
 
 
 if __name__ == '__name__':
-    app.run(debug=False)
+    app.run(debug=True, port=4040)

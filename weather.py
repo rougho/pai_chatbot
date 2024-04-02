@@ -73,20 +73,24 @@ def get_forecast(lat, long):
 
 def main():
     # testing
-    data = get_cities(str(input(">")))
-    print("="*100)
-    c = get_city_data(data)
-    for index, city in enumerate(c):
-        print(index, city)
+    # data = get_cities(str(input(">")))
+    # data = get_cities("Berlin")
+    # print("="*100)
+    # c = get_city_data(data)
+    # for index, city in enumerate(c):
+    #     print(index, city)
 
-    print("="*100)
-    choice = int(input("> "))
-    lat = c[choice]['lat']
-    long = c[choice]['long']
-    print("="*100)
+    # print("="*100)
+    # choice = int(input("> "))
+    # lat = c[choice]['lat']
+    # long = c[choice]['long']
+    # print("="*100)
 
-    print(json.dumps(get_forecast(lat, long), indent=4))
+    return json.dumps(get_forecast(52.52437, 13.41053), indent=4)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+
+
+# 'lat': 52.52437, 'long': 13.41053,

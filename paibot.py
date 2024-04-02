@@ -5,7 +5,7 @@ import os
 import json
 import re
 from langchain_community.llms import Ollama
-
+import weather
 llm = Ollama(model="llama2")
 load_dotenv()
 
@@ -13,7 +13,9 @@ load_dotenv()
 TOKEN: str = os.getenv('HTTP_API_TOKEN')
 BASE_URL: str = f"https://api.telegram.org/bot{TOKEN}/"
 ngrok_url: str = os.getenv("NGROK_URL")
-telegram_webhook: str = BASE_URL + "setWebhook"
+telegram_webhook: str = f"{BASE_URL}setWebhook?url={ngrok_url}"
+
+
 app: object = Flask(__name__)
 
 
@@ -59,19 +61,20 @@ def bot():
         chat_id, text = parse_message(message)
         write_json(message)
         # msg = llm.invoke(text)
-        send_message(chat_id, text)
+        if text == "/forecast5":
+            send_message(chat_id, weather.get_forecast(52.52437, 13.41053))
         return Response('OK', status=200)
     else:
         return Response('Internal Server Error', status=500)
 
 
-@app.route('/setwebhook/')
+@app.route('/setwebhook')
 def setwebhook():
     print(telegram_webhook)
-    set_ngrok = {"url": ngrok_url}
-    response = requests.post(telegram_webhook, json=set_ngrok)
+    payload = {"url": ngrok_url}
+    response = requests.post(telegram_webhook, json=payload)
     return response.json() if response.status_code == 200 else "FAIL"
 
 
 if __name__ == '__name__':
-    app.run(debug=True, port=4040)
+    app.run(debug=True, port=5000)

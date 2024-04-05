@@ -2,6 +2,7 @@
 echobot.py
 telegram_request.json
 request.csr
+commands.js
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

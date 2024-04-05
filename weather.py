@@ -71,22 +71,23 @@ def get_forecast(lat, long):
         print(f"Error fetching weather data: {e}")
 
 
-def main():
+def forecast(name):
     # testing
-    # data = get_cities(str(input(">")))
-    # data = get_cities("Berlin")
+    result = ""
+    # data = get_cities(str(msg))
+    data = get_cities(name)
     # print("="*100)
-    # c = get_city_data(data)
-    # for index, city in enumerate(c):
-    #     print(index, city)
+    c = get_city_data(data)
+    for index, city in enumerate(c):
+        result += f"{index+1} - {city['name']} - {city['country_code']}\n"
 
     # print("="*100)
     # choice = int(input("> "))
     # lat = c[choice]['lat']
     # long = c[choice]['long']
     # print("="*100)
-
-    return json.dumps(get_forecast(52.52437, 13.41053), indent=4)
+    return result
+    # return json.dumps(get_forecast(52.52437, 13.41053), indent=4)
 
 
 # if __name__ == "__main__":

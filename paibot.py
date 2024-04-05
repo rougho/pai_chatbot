@@ -6,6 +6,9 @@ import json
 import re
 from langchain_community.llms import Ollama
 import weather
+import command_handler as ch
+
+# import command_handler as ch
 llm = Ollama(model="llama2")
 load_dotenv()
 
@@ -17,12 +20,6 @@ telegram_webhook: str = f"{BASE_URL}setWebhook?url={ngrok_url}"
 
 
 app: object = Flask(__name__)
-
-
-def re_exp(message: str):
-    pattern = r'/[a-zA-Z]{2-4}'
-    ticker = re.findall(pattern, message)
-    return ticker[0] if ticker else ''
 
 
 def parse_message(message: dict[str, str]) -> tuple[str]:
@@ -61,8 +58,8 @@ def bot():
         chat_id, text = parse_message(message)
         write_json(message)
         # msg = llm.invoke(text)
-        if text == "/forecast5":
-            send_message(chat_id, weather.get_forecast(52.52437, 13.41053))
+        text = ch.handle_commands(text)
+        send_message(chat_id, text)
         return Response('OK', status=200)
     else:
         return Response('Internal Server Error', status=500)

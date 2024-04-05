@@ -9,6 +9,7 @@ DATA_DIR = os.path.join(MODEL_DIR, "data")
 PDF_DIR = os.path.join(DATA_DIR, "pdf")
 PDF_FILES = list()
 MERGED_PDF_FILENAME = 'merged.pdf'
+PDF_DOC = ''
 
 
 def data_directory_handler():
